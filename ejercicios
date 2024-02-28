@@ -1,0 +1,412 @@
+'use strict'; //PARA TODOS LOS EJERCICIOS
+//_____________________________________________________________________________________1-screen y window
+/********************
+ * screen y window
+ ********************/
+
+console.log("Ancho pantalla: " + screen.width + "px");
+console.log("Alto pantalla: " + screen.height + "px");
+
+console.log("Ancho disponible: " + screen.availWidth + "px");
+console.log("Alto disponible: " + screen.availHeight + "px");
+
+console.log("Ancho ventana: " + window.outerWidth + "px");
+console.log("Alto ventana: " + window.outerHeight + "px");
+
+console.log("Ancho interno ventana: " + window.innerWidth);
+console.log("Alto interno ventana: " + window.innerHeight);
+
+function printPos(position) { // Sólo funciona en un servidor web mediante https!!
+    console.log("Latitud: " + position.coords.latitude + ", Longitud: " + position.coords.longitude);
+}
+
+navigator.geolocation.getCurrentPosition(printPos);
+
+
+//__________________________________________________________________________________2-TIME OUT INTERVALS
+let i = 1;
+
+function hello() {
+    console.log("Hello timeout " + i++);
+    if(i < 10) {
+        timeout = setTimeout(hello,2000); // Repetimos timeout
+    }
+}
+
+let timeout = setTimeout(hello,2000); // Timeout con función existente cada 2s
+
+let j = 1;
+let interval = setInterval(() => { // Interval con función anónima (lambda)
+    console.log("Hello interval " + j++);
+    if(j > 9) {
+        clearInterval(interval); // Paramos repetición automática
+    }
+},2000);
+
+console.log("Start!!");
+
+
+//____________________________________________________________________________3-EVENTS TIME OUT
+let timeout = null;
+
+document.getElementById("start").addEventListener("click", () => {
+    timeout = setTimeout(function() {
+        let info = document.getElementById("info");
+        let nombre = document.getElementById("nombre").value;
+        let edad = document.getElementById("edad").value;
+        info.textContent = nombre + " - " + edad;
+    }, 3000);
+});
+
+document.getElementById("stop").addEventListener("click", () => {
+    console.log("Stop!!");
+    clearTimeout(timeout);
+});
+
+//______________________________________________________________________4-HISTORY PUSH STATE
+let info = document.getElementById("info");
+info.textContent = "Estoy en la página Inicial";
+
+// Evento para capturar cuando se va hacia atrás en la navegación
+window.addEventListener('popstate', event => {
+    if(event.state) { // Datos de navegación? (no es página inicial)
+        info.textContent = "Estoy en la página " + event.state.page +
+                            ". Dato guardado: " + event.state.name;
+        document.getElementById("name").value = event.state.name;
+    } else { // Página de inicio
+        info.textContent = "Estoy en la página Inicial";
+        document.getElementById("name").value = "";
+    }
+});
+
+let page = 1;
+function goBack() {
+    history.back();
+}
+
+document.getElementById("prev").addEventListener("click", goBack);
+
+function goNext() {
+    // history.state == null si es la primera página
+    let nombre = document.getElementById("name").value;
+    document.getElementById("name").value = '';
+    let pageNum = history.state?history.state.page + 1:1;
+    history.pushState({page: pageNum, name: nombre}, "");
+    info.textContent = "Estoy en la página " + pageNum + 
+                        ". Dato guardado: " + nombre;
+}
+
+document.getElementById("next").addEventListener("click", goNext);
+
+//___________________________________________________________________________________5-DIALOGS
+let buttonAlert = document.getElementById("showAlert");
+
+buttonAlert.addEventListener("click", () => {
+    alert("Hello!, I'm an alert message.");
+    console.log("Alert was closed");
+});
+
+let buttonConfirm = document.getElementById("showConfirm");
+
+buttonConfirm.addEventListener("click", () => {
+    let response = confirm("Do you want more money?");
+    if(response) {
+        console.log("Get a better job");
+    } else {
+        console.log("Are you sure? OK...");
+    }
+});
+
+let buttonPrompt = document.getElementById("showPrompt");
+
+buttonPrompt.addEventListener("click", () => {
+    let response = prompt("What's your name", "Elvis");
+    
+    if(response) {
+        console.log("Your name is " + response);
+    } else {
+        console.log("Tell me your name!!");
+    }
+});
+
+//_______________________________________________________________________6-DOM NODOS
+console.log('*********** Elementos dentro de body ***********');
+let bodyNodes = document.body.children;
+for (let i = 0; i < bodyNodes.length; i++) {
+    console.log(bodyNodes[i]);
+}
+
+console.log('******** Elemento con id p1 y su hermano ******');
+let p1 = document.getElementById('p1');
+console.log('p#' + p1.id + ' -> ' + p1.textContent);
+
+let p2 = p1.nextElementSibling; // Siguiente elemento desde p1
+console.log('p#' + p2.id + ' -> ' + p2.textContent);
+
+console.log('******** Elementos con la clase par ******');
+let paras = document.getElementsByClassName('par');
+for (let i = 0; i < paras.length; i++) {
+    console.log('p#' + paras[i].id + ' -> ' + paras[i].textContent);
+}
+
+//____________________________________________________________________7-QUERY SELECTOR
+console.log("----- Una forma de recorrer la primera lista ------");
+let ul = document.getElementById("firstListElement").parentElement;
+console.log(ul.className);
+console.log(ul.children);
+for(let i = 0; i < ul.children.length; i++) {
+    let li = ul.children[i];
+    console.log(li.textContent);
+}
+
+console.log("----- Elementos .item1 en la primera lista ------");
+let ul1 = document.getElementsByClassName("ul1")[0];
+let items = ul1.getElementsByClassName("item1"); // Elementos .item1 dentro de .ul1
+for(let i = 0; i < items.length; i++) {
+    console.log(items[i].textContent);
+}
+
+console.log("----- Igual que antes pero con querySelectorAll ------");
+let itemsSel = document.querySelectorAll("ul.ul1 > li.item1");
+for(let i = 0; i < itemsSel.length; i++) {
+    console.log(itemsSel[i].textContent);
+}
+console.log("----- Elementos de lista .ul2 que no tengan clase .item1 ------");
+ itemsSel = document.querySelectorAll("ul.ul2 > li:not(.item1)");
+for(let i = 0; i < itemsSel.length; i++) {
+    console.log(itemsSel[i].textContent);
+}
+console.log("---- <input> cuyo atributo value empiece por 'input' -----");
+let inputs = document.querySelectorAll("input[value^='input']");
+inputs.forEach(function(input) {
+        console.log(input);
+});
+
+//______________________________________________________________8-CREATE ELEMENT ATRIBUTOS
+let div = document.getElementById('contenido');
+
+// Creamos 2 párrafos
+let p1 = document.createElement('p');
+let p2 = document.createElement('p');
+
+// Se los añadimos al <div id="contenido">
+div.appendChild(p1);
+div.appendChild(p2);
+
+// 2 formas de asignarle texto al párrafo
+p1.textContent = 'Soy el primer párrafo creado';
+p2.appendChild(document.createTextNode('Soy el segundo párrafo creado'));
+
+// Creamos otro párrafo que insertaremos entre los 2 anteriores
+let p3 = document.createElement('p');
+p3.textContent = 'Soy el tercero. Me han insertado entre los 2 párrafos';
+div.insertBefore(p3, p2);
+
+let a = document.querySelector('#pie a');
+//a.remove(); // Funciona!!, como en JQuery (experimental, solo en navegadores modernos)
+//a.parentElement.removeChild(a); // Forma de borrarlo clásica a partir del padre
+
+// Acceder y modificar atributos y estilos (ver resultado en consola e inspeccionando HTML)
+a.title = 'Another title...';
+console.log(a.id);
+a.className = 'a2';
+console.log(a.hasAttribute('href'));
+console.log(a.hasAttribute('value'));
+console.log(a.getAttribute('class'));
+a.setAttribute('class', 'a3');
+console.log(a.className);
+
+div.style.boxSizing = 'border-box';
+div.style.maxWidth = '300px';
+div.style.padding = '50px';
+div.style.color = 'white';
+div.style.backgroundColor = 'red';
+//_______________________________________________________________________9-EVENT LISTENERS
+let div = document.getElementById('contenido');
+let pclicks = document.getElementById('clicks');
+let numClicks = 0;
+
+// Añadimos un primer manejador de eventos  (click)
+div.addEventListener('click', sayHello);
+
+function sayHello(event) {
+    console.log(event);
+    alert('Hola');
+}
+
+// Añadimos un segundo manejador de eventos (click)
+div.addEventListener('click', event => {
+    pclicks.textContent = 'Clicks: ' + ++numClicks;
+    // Le quitamos el eventListener que mostraba el alert la primera vez que haga click
+    div.removeEventListener('click', sayHello);
+});
+
+function detectEvent(event) {
+    if (event instanceof MouseEvent) {
+        console.log("I'm a mouse event -> " + event.type);
+    } else if (event instanceof KeyboardEvent) {
+        console.log("I'm a keyboard event -> " + event.type);
+    }
+}
+
+// Añadimos mismo manejador de eventos para 2 eventos diferentes
+// En la función detectamos de qué tipo de evento se trata
+let input = document.getElementById('input');
+input.addEventListener('click', detectEvent);
+input.addEventListener('keypress', detectEvent);
+
+//_________________________________________________________________10-ATRIBUTO CLASS
+/**
+ * Vamos a ver como resaltar (y viceversa) los elementos de una lista con clases CSS
+ */
+let items = document.querySelectorAll('#list li');
+
+// ponemos o quitamos la clase del elemento cada vez que se haga click
+function activate(event) {
+    if (!event.target.className) {
+        event.target.className = 'active';
+    } else {
+        event.target.className = '';
+    }
+}
+
+// Agregamos el manejador a todos los elementos de la lista
+items.forEach(item => item.addEventListener('click', activate));
+
+/**
+ * Como añadir y quitar clases a un elemento cuando tiene varias
+ */
+console.log('Clases iniciales del elemento #list:');
+let classes = document.getElementById('list').classList;
+classes.forEach(c => console.log('Class: ' + c));
+classes.remove('c2');
+classes.add('c3');
+console.log('Después de modificarlas:');
+classes.forEach(c => console.log('Class: ' + c));
+//______________________________________________________________11-FORM ENLACES EVENTOS
+let novale = document.getElementById('novale');
+let pInfo = document.getElementById('info');
+let inputName = document.getElementById('name');
+let form = document.getElementById('form');
+
+novale.addEventListener('click', event => {
+    console.log('No puedes ir a google desde aquí');
+    event.preventDefault(); // Evitamos comportamiento por defecto del enlace
+});
+
+inputName.addEventListener('focus', event => {
+    console.log("Ahora puedes escribir en 'name'");
+    inputName.className = '';
+});
+
+inputName.addEventListener('keypress', event => {
+    if (event.keyCode === 13) {
+        // Enter
+        event.preventDefault(); // No enviamos el formulario (comportamiento por defecto)
+        pInfo.textContent = inputName.value;
+    }
+});
+
+// Al perder el foto el campo, comprobamos que ha introducido algo
+inputName.addEventListener('blur', event => {
+    console.log("'name' ha perdido el foco");
+    if (inputName.value === '') {
+        pInfo.textContent = 'El campo no puede estar vacío';
+        inputName.className = 'not-valid';
+    } else {
+        pInfo.textContent = inputName.value;
+    }
+});
+
+// Si el nombre está vacío, impedimos que se envíe el formulario
+form.addEventListener('submit', () => {
+    if (inputName.value === '') {
+        event.preventDefault();
+        console.log('El nombre está vacío');
+    }
+});
+
+//_________________________________________________________________12-DETALLES EVENTO
+let div = document.getElementById("div");
+div.addEventListener('click', event => {
+    console.log("Botón: " + (event.button === 0?'left':
+                                    event.button === 1?'middle':'right'));
+    console.log("Coordenadas navegador: " + event.clientX + ", " + event.clientY);
+    console.log("Coordenadas document: " + event.pageX +  ", " + event.pageY);
+    console.log("Coordenadas pantalla: " + event.screenX + ", " + event.screenY);
+    console.log("Clicks (simple, doble,...): " + event.detail);
+});
+
+//_______________________________________________________________13-PROPAGACION EVENTO
+let div1 = document.getElementById('div1');
+let div2 = document.getElementById('div2');
+
+// Prueba a deshabilitar la propagación
+
+document.body.addEventListener('click', () => {
+    console.log('Click on body');
+});
+
+div1.addEventListener('click', event => {
+    console.log('Click on div1');
+    //event.stopPropagation();
+});
+div2.addEventListener('click', event => {
+    console.log('Click on div2');
+    //event.stopPropagation()
+});
+
+//____________________________________________________________14-PROPAGACION EVENTO 2
+
+let div1 = document.getElementById("div1");
+let div2 = document.getElementById("div2");
+let div3 = document.getElementById("div3");
+
+// Prueba a quitar el tercer parámetro (true) para ver como se propaga al revés
+div1.addEventListener('click', event => {
+    console.log("Click en div1, Fase: " + event.eventPhase);
+    //event.stopPropagation();
+}, true);
+div2.addEventListener('click', event => {
+    console.log("Click en div2, Fase: " + event.eventPhase);
+}, true);
+div3.addEventListener('click', event => {
+    console.log("Click en div3, Fase: " + event.eventPhase);
+}, true);
+//____________________________________________________15-VALORES FORMULARIO
+
+let form = null;
+
+document.addEventListener('DOMContentLoaded', e => {
+    form = document.getElementById('formulario');
+    form.addEventListener('submit', envioForm);
+});
+
+function envioForm(e) {
+    e.preventDefault();
+    const aficiones = Array.from(form.aficiones)
+        .filter(input => input.checked)
+        .map(input => input.value);
+    
+    document.getElementById('envio').textContent = `Nombre: ${form.nombre.value},
+    Aficiones: ${aficiones}, Color: ${form.color.value}`;
+
+    if(formulario.fichero.files.length) { // Si hemos seleccionado un archivo
+        const fichero = formulario.fichero.files[0];
+        document.getElementById('envioArchivo').textContent = `Archivo: ${fichero.name},
+        tipo: ${fichero.type}, tamaño: ${fichero.size}bytes`;
+
+        if(fichero.type.startsWith('image')) {
+            cargaImagen(fichero);
+        }
+    }
+}
+
+function cargaImagen(fichero) {
+    let reader = new FileReader();
+    reader.readAsDataURL(fichero);
+
+    reader.addEventListener('load', e => {
+        document.getElementById("imgPreview").src = reader.result;
+    });
+}
